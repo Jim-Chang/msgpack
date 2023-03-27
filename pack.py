@@ -27,7 +27,7 @@ class Packer:
         elif isinstance(obj, float):
             self._pack_float(obj)
         elif isinstance(obj, str):
-            self._pack_string(obj)
+            self._pack_str(obj)
         elif isinstance(obj, bytes):
             self._pack_bytes(obj)
         elif isinstance(obj, (list, tuple)):
@@ -114,8 +114,38 @@ class Packer:
         self._buffer.write(b"\xcb")
         self._buffer.write(struct.pack(">d", obj))
 
-    def _pack_string(self, obj):
-        pass
+    def _pack_str(self, obj: str):
+        byte_str = obj.encode("utf-8")
+        byte_len = len(byte_str)
+        if byte_len > 0xFFFFFFFF:
+            raise Exception("String is too long to pack")
+        if byte_len <= 0x1F:
+            self._pack_fix_str(byte_str)
+        elif byte_len <= 0xFF:
+            self._pack_str8(byte_str)
+        elif byte_len <= 0xFFFF:
+            self._pack_str16(byte_str)
+        elif byte_len <= 0xFFFFFFFF:
+            self._pack_str32(byte_str)
+
+    def _pack_fix_str(self, byte_str: bytes):
+        self._buffer.write((0xA0 + len(byte_str)).to_bytes(1, byteorder="big"))
+        self._buffer.write(byte_str)
+
+    def _pack_str8(self, byte_str: bytes):
+        self._buffer.write(b"\xd9")
+        self._buffer.write(len(byte_str).to_bytes(1, byteorder="big"))
+        self._buffer.write(byte_str)
+
+    def _pack_str16(self, byte_str: bytes):
+        self._buffer.write(b"\xda")
+        self._buffer.write(len(byte_str).to_bytes(2, byteorder="big"))
+        self._buffer.write(byte_str)
+
+    def _pack_str32(self, byte_str: bytes):
+        self._buffer.write(b"\xdb")
+        self._buffer.write(len(byte_str).to_bytes(4, byteorder="big"))
+        self._buffer.write(byte_str)
 
     def _pack_bytes(self, obj):
         pass

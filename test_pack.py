@@ -1,5 +1,6 @@
 import pytest
 
+import msgpack
 from pack import pack
 
 
@@ -149,3 +150,67 @@ def test_double_float(test_input, expected):
     ret = pack(test_input, using_single_float=False)
 
     assert ret == expected
+
+
+# because following tests strings are too long, so we use msgpack.packb to generate expected result
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("t", msgpack.packb("t")),
+        ("test", msgpack.packb("test")),
+        ("t"*31, msgpack.packb("t"*31)),
+    ],
+)
+def test_fix_str(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("t"*32, msgpack.packb("t"*32, use_bin_type=True)),
+        ("t"*150, msgpack.packb("t"*150, use_bin_type=True)),
+        ("t"*255, msgpack.packb("t"*255, use_bin_type=True)),
+    ],
+)
+def test_str8(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ("t"*256, msgpack.packb("t"*256, use_bin_type=True)),
+        ("t"*300, msgpack.packb("t"*300, use_bin_type=True)),
+        ("t"*65535, msgpack.packb("t"*65535, use_bin_type=True)),
+    ],
+)
+def test_str16(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
+
+
+@pytest.mark.skip(reason="This test is too slow")
+# @pytest.mark.parametrize(
+#     "test_input,expected",
+#     [
+#         ("t"*65536, msgpack.packb("t"*65536, use_bin_type=True)),
+#         ("t"*100000, msgpack.packb("t"*100000, use_bin_type=True)),
+#         ("t"*4294967295, msgpack.packb("t"*4294967295, use_bin_type=True)),
+#     ],
+# )
+def test_str32(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
+
+
+@pytest.mark.skip(reason="This test is too slow")
+def test_str_sz_fail():
+    with pytest.raises(Exception):
+        pack("t"*4294967296, using_single_float=False)
+
