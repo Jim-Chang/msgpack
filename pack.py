@@ -1,14 +1,16 @@
+import struct
 from io import BytesIO
 
 
-def pack(obj):
-    packer = Packer()
+def pack(obj, using_single_float=False):
+    packer = Packer(using_single_float=using_single_float)
     return packer.pack(obj)
 
 
 class Packer:
-    def __init__(self):
+    def __init__(self, using_single_float=False):
         self._buffer = BytesIO()
+        self._using_single_float = using_single_float
 
     def pack(self, obj) -> bytes:
         self._buffer = BytesIO()
@@ -98,8 +100,19 @@ class Packer:
         self._buffer.write(b"\xd3")
         self._buffer.write(obj.to_bytes(8, byteorder="big", signed=True))
 
-    def _pack_float(self, obj):
-        pass
+    def _pack_float(self, obj: float):
+        if self._using_single_float:
+            self._pack_single_float(obj)
+        else:
+            self._pack_double_float(obj)
+
+    def _pack_single_float(self, obj: float):
+        self._buffer.write(b"\xca")
+        self._buffer.write(struct.pack(">f", obj))
+
+    def _pack_double_float(self, obj: float):
+        self._buffer.write(b"\xcb")
+        self._buffer.write(struct.pack(">d", obj))
 
     def _pack_string(self, obj):
         pass

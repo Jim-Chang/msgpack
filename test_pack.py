@@ -121,3 +121,31 @@ def test_int8(test_input, expected):
     ret = pack(test_input)
 
     assert ret == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        (1.1, b"\xca?\x8c\xcc\xcd"),
+        (1.11, b"\xca?\x8e\x14{"),
+        (-1.1, b"\xca\xbf\x8c\xcc\xcd"),
+    ],
+)
+def test_single_float(test_input, expected):
+    ret = pack(test_input, using_single_float=True)
+
+    assert ret == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        (1.1, b"\xcb?\xf1\x99\x99\x99\x99\x99\x9a"),
+        (1.11, b"\xcb?\xf1\xc2\x8f\(\xf5\xc3"),
+        (-1.1, b"\xcb\xbf\xf1\x99\x99\x99\x99\x99\x9a"),
+    ],
+)
+def test_double_float(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
