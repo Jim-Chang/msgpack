@@ -459,3 +459,29 @@ def test_general_map(test_input, expected):
     ret = pack(test_input)
 
     assert ret == expected
+
+
+def test_general_json_data():
+    data = {
+        "name": "Jane Smith",
+        "age": 25,
+        "height": 1.6,
+        "hobbies": [
+            "reading",
+            "painting",
+            {"name": "hiking", "location": "mountain"},
+            10,
+            3.14,
+        ],
+        "address": {
+            "street": "456 Oak Ave",
+            "city": "Somewhereville",
+            "state": "NY",
+            "zip": "67890",
+        },
+    }
+    expected = msgpack.packb(data, use_bin_type=True)
+
+    ret = pack(data)
+
+    assert ret == expected
