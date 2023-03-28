@@ -55,9 +55,11 @@ class Packer:
         elif -0x8000 <= obj < -0x80:
             self._pack_int16(obj)
         elif -0x80000000 <= obj < 0x8000:
-            self._pack_uint32(obj)
+            self._pack_int32(obj)
         elif -0x8000000000000000 <= obj < -0x80000000:
-            self._pack_uint64(obj)
+            self._pack_int64(obj)
+        else:
+            raise Exception("Integer is out of range")
 
     def _pack_positive_fix_int(self, obj: int):
         self._buffer.write(bytes([obj]))

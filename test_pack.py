@@ -127,6 +127,54 @@ def test_int8(test_input, expected):
 @pytest.mark.parametrize(
     "test_input,expected",
     [
+        (-129, b"\xd1\xff\x7f"),
+        (-200, b"\xd1\xff8"),
+        (-32768, b"\xd1\x80\x00"),
+    ],
+)
+def test_int16(test_input, expected):
+    ret = pack(test_input)
+
+    assert ret == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        (-32769, b"\xd2\xff\xff\x7f\xff"),
+        (-100000, b"\xd2\xff\xfey`"),
+        (-2147483648, b"\xd2\x80\x00\x00\x00"),
+    ],
+)
+def test_int32(test_input, expected):
+    ret = pack(test_input)
+
+    assert ret == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        (-2147483649, b"\xd3\xff\xff\xff\xff\x7f\xff\xff\xff"),
+        (-10000000000, b"\xd3\xff\xff\xff\xfd\xab\xf4\x1c\x00"),
+        (-9223372036854775808, b"\xd3\x80\x00\x00\x00\x00\x00\x00\x00"),
+    ],
+)
+def test_int64(test_input, expected):
+    ret = pack(test_input)
+
+    assert ret == expected
+
+
+def test_int_sz_fail():
+    with pytest.raises(Exception):
+        pack(18446744073709551616)
+        pack(-9223372036854775809)
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
         (1.1, b"\xca?\x8c\xcc\xcd"),
         (1.11, b"\xca?\x8e\x14{"),
         (-1.1, b"\xca\xbf\x8c\xcc\xcd"),
@@ -147,7 +195,7 @@ def test_single_float(test_input, expected):
     ],
 )
 def test_double_float(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -275,7 +323,7 @@ def test_bin_sz_fail():
     ],
 )
 def test_fix_array(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -289,7 +337,7 @@ def test_fix_array(test_input, expected):
     ],
 )
 def test_array16(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -304,7 +352,7 @@ def test_array16(test_input, expected):
 #     ],
 # )
 def test_array32(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -312,7 +360,7 @@ def test_array32(test_input, expected):
 @pytest.mark.skip(reason="This test is too slow")
 def test_array_sz_fail():
     with pytest.raises(Exception):
-        pack([1] * 4294967296, using_single_float=False)
+        pack([1] * 4294967296)
 
 
 @pytest.mark.parametrize(
@@ -334,7 +382,7 @@ def test_array_sz_fail():
     ],
 )
 def test_general_array(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -348,7 +396,7 @@ def test_general_array(test_input, expected):
     ],
 )
 def test_fix_map(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -362,7 +410,7 @@ def test_fix_map(test_input, expected):
     ],
 )
 def test_map16(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -377,7 +425,7 @@ def test_map16(test_input, expected):
 #     ],
 # )
 def test_map32(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -385,7 +433,7 @@ def test_map32(test_input, expected):
 @pytest.mark.skip(reason="This test is too slow")
 def test_map_sz_fail():
     with pytest.raises(Exception):
-        pack({i: i for i in range(4294967297)}, using_single_float=False)
+        pack({i: i for i in range(4294967297)})
 
 
 @pytest.mark.parametrize(
@@ -408,6 +456,6 @@ def test_map_sz_fail():
     ],
 )
 def test_general_map(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
