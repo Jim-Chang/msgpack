@@ -152,7 +152,8 @@ def test_double_float(test_input, expected):
     assert ret == expected
 
 
-# because following tests strings are too long, so we use msgpack.packb to generate expected result
+# because following testing data are too long, so we use msgpack.packb to generate expected result
+# it's not a good practice, but it's ok for this demo
 @pytest.mark.parametrize(
     "test_input,expected",
     [
@@ -263,3 +264,76 @@ def test_bin32(test_input, expected):
 def test_bin_sz_fail():
     with pytest.raises(Exception):
         pack(b"t" * 4294967296, using_single_float=False)
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ([1], msgpack.packb([1])),
+        ([1] * 10, msgpack.packb([1] * 10)),
+        ([1] * 15, msgpack.packb([1] * 15)),
+    ],
+)
+def test_fix_array(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ([1] * 16, msgpack.packb([1] * 16)),
+        ([1] * 100, msgpack.packb([1] * 100)),
+        ([1] * 65535, msgpack.packb([1] * 65535)),
+    ],
+)
+def test_array16(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
+
+
+@pytest.mark.skip(reason="This test is too slow")
+# @pytest.mark.parametrize(
+#     "test_input,expected",
+#     [
+#         ([1]*65536, msgpack.packb([1]*65536)),
+#         ([1]*100000, msgpack.packb([1]*100000)),
+#         ([1]*4294967295, msgpack.packb([1]*4294967295)),
+#     ],
+# )
+def test_array32(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
+
+
+@pytest.mark.skip(reason="This test is too slow")
+def test_array_sz_fail():
+    with pytest.raises(Exception):
+        pack([1] * 4294967296, using_single_float=False)
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        (
+            [1, 1000, "t", "t" * 10, "t" * 1000, b"t", b"t" * 10, b"t" * 1000],
+            msgpack.packb(
+                [1, 1000, "t", "t" * 10, "t" * 1000, b"t", b"t" * 10, b"t" * 1000],
+                use_bin_type=True,
+            ),
+        ),
+        (
+            [[1, 2, 3], ["t", "t" * 100], [1, [200, 30000]]],
+            msgpack.packb(
+                [[1, 2, 3], ["t", "t" * 100], [1, [200, 30000]]], use_bin_type=True
+            ),
+        ),
+    ],
+)
+def test_general_array(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected

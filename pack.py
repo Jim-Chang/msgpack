@@ -31,7 +31,7 @@ class Packer:
         elif isinstance(obj, (bytes, bytearray)):
             self._pack_bytes(obj)
         elif isinstance(obj, (list, tuple)):
-            self._pack_list(obj)
+            self._pack_array(obj)
         elif isinstance(obj, dict):
             self._pack_dict(obj)
         else:
@@ -173,8 +173,33 @@ class Packer:
         self._buffer.write(len(obj).to_bytes(4, byteorder="big"))
         self._buffer.write(obj)
 
-    def _pack_list(self, obj):
-        pass
+    def _pack_array(self, obj):
+        list_len = len(obj)
+        if list_len > 0xFFFFFFFF:
+            raise Exception("List is too long to pack")
+        if list_len <= 0xF:
+            self._pack_fix_array(obj)
+        elif list_len <= 0xFFFF:
+            self._pack_array16(obj)
+        elif list_len <= 0xFFFFFFFF:
+            self._pack_array32(obj)
+
+    def _pack_fix_array(self, obj):
+        self._buffer.write((0x90 + len(obj)).to_bytes(1, byteorder="big"))
+        for item in obj:
+            self._pack(item)
+
+    def _pack_array16(self, obj):
+        self._buffer.write(b"\xdc")
+        self._buffer.write(len(obj).to_bytes(2, byteorder="big"))
+        for item in obj:
+            self._pack(item)
+
+    def _pack_array32(self, obj):
+        self._buffer.write(b"\xdd")
+        self._buffer.write(len(obj).to_bytes(4, byteorder="big"))
+        for item in obj:
+            self._pack(item)
 
     def _pack_dict(self, obj):
         pass
