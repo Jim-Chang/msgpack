@@ -28,7 +28,7 @@ class Packer:
             self._pack_float(obj)
         elif isinstance(obj, str):
             self._pack_str(obj)
-        elif isinstance(obj, bytes):
+        elif isinstance(obj, (bytes, bytearray)):
             self._pack_bytes(obj)
         elif isinstance(obj, (list, tuple)):
             self._pack_list(obj)
@@ -147,8 +147,31 @@ class Packer:
         self._buffer.write(len(byte_str).to_bytes(4, byteorder="big"))
         self._buffer.write(byte_str)
 
-    def _pack_bytes(self, obj):
-        pass
+    def _pack_bytes(self, obj: bytes | bytearray):
+        byte_len = len(obj)
+        if byte_len > 0xFFFFFFFF:
+            raise Exception("Bytes is too long to pack")
+        if byte_len <= 0xFF:
+            self._pack_bin8(obj)
+        elif byte_len <= 0xFFFF:
+            self._pack_bin16(obj)
+        elif byte_len <= 0xFFFFFFFF:
+            self._pack_bin32(obj)
+
+    def _pack_bin8(self, obj):
+        self._buffer.write(b"\xc4")
+        self._buffer.write(len(obj).to_bytes(1, byteorder="big"))
+        self._buffer.write(obj)
+
+    def _pack_bin16(self, obj):
+        self._buffer.write(b"\xc5")
+        self._buffer.write(len(obj).to_bytes(2, byteorder="big"))
+        self._buffer.write(obj)
+
+    def _pack_bin32(self, obj):
+        self._buffer.write(b"\xc6")
+        self._buffer.write(len(obj).to_bytes(4, byteorder="big"))
+        self._buffer.write(obj)
 
     def _pack_list(self, obj):
         pass

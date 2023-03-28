@@ -158,7 +158,7 @@ def test_double_float(test_input, expected):
     [
         ("t", msgpack.packb("t")),
         ("test", msgpack.packb("test")),
-        ("t"*31, msgpack.packb("t"*31)),
+        ("t" * 31, msgpack.packb("t" * 31)),
     ],
 )
 def test_fix_str(test_input, expected):
@@ -170,9 +170,9 @@ def test_fix_str(test_input, expected):
 @pytest.mark.parametrize(
     "test_input,expected",
     [
-        ("t"*32, msgpack.packb("t"*32, use_bin_type=True)),
-        ("t"*150, msgpack.packb("t"*150, use_bin_type=True)),
-        ("t"*255, msgpack.packb("t"*255, use_bin_type=True)),
+        ("t" * 32, msgpack.packb("t" * 32, use_bin_type=True)),
+        ("t" * 150, msgpack.packb("t" * 150, use_bin_type=True)),
+        ("t" * 255, msgpack.packb("t" * 255, use_bin_type=True)),
     ],
 )
 def test_str8(test_input, expected):
@@ -180,12 +180,13 @@ def test_str8(test_input, expected):
 
     assert ret == expected
 
+
 @pytest.mark.parametrize(
     "test_input,expected",
     [
-        ("t"*256, msgpack.packb("t"*256, use_bin_type=True)),
-        ("t"*300, msgpack.packb("t"*300, use_bin_type=True)),
-        ("t"*65535, msgpack.packb("t"*65535, use_bin_type=True)),
+        ("t" * 256, msgpack.packb("t" * 256, use_bin_type=True)),
+        ("t" * 300, msgpack.packb("t" * 300, use_bin_type=True)),
+        ("t" * 65535, msgpack.packb("t" * 65535, use_bin_type=True)),
     ],
 )
 def test_str16(test_input, expected):
@@ -212,5 +213,53 @@ def test_str32(test_input, expected):
 @pytest.mark.skip(reason="This test is too slow")
 def test_str_sz_fail():
     with pytest.raises(Exception):
-        pack("t"*4294967296, using_single_float=False)
+        pack("t" * 4294967296, using_single_float=False)
 
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        (b"t", msgpack.packb(b"t", use_bin_type=True)),
+        (b"t" * 10, msgpack.packb(b"t" * 10, use_bin_type=True)),
+        (b"t" * 255, msgpack.packb(b"t" * 255, use_bin_type=True)),
+    ],
+)
+def test_bin8(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        (b"t" * 256, msgpack.packb(b"t" * 256, use_bin_type=True)),
+        (b"t" * 300, msgpack.packb(b"t" * 300, use_bin_type=True)),
+        (b"t" * 65535, msgpack.packb(b"t" * 65535, use_bin_type=True)),
+    ],
+)
+def test_bin16(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
+
+
+@pytest.mark.skip(reason="This test is too slow")
+# @pytest.mark.parametrize(
+#     "test_input,expected",
+#     [
+#         (b"t"*65536, msgpack.packb(b"t"*65536, use_bin_type=True)),
+#         (b"t"*100000, msgpack.packb(b"t"*100000, use_bin_type=True)),
+#         (b"t"*4294967295, msgpack.packb(b"t"*4294967295, use_bin_type=True)),
+#     ],
+# )
+def test_bin32(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
+
+
+@pytest.mark.skip(reason="This test is too slow")
+def test_bin_sz_fail():
+    with pytest.raises(Exception):
+        pack(b"t" * 4294967296, using_single_float=False)
