@@ -59,7 +59,7 @@ class Packer:
         elif -0x8000000000000000 <= obj < -0x80000000:
             self._pack_int64(obj)
         else:
-            raise Exception("Integer is out of range")
+            raise ValueError("Integer is out of range")
 
     def _pack_positive_fix_int(self, obj: int):
         self._buffer.write(bytes([obj]))
@@ -120,7 +120,7 @@ class Packer:
         byte_str = obj.encode("utf-8")
         byte_len = len(byte_str)
         if byte_len > 0xFFFFFFFF:
-            raise Exception("String is too long to pack")
+            raise ValueError("String is too long to pack")
         if byte_len <= 0x1F:
             self._pack_fix_str(byte_str)
         elif byte_len <= 0xFF:
@@ -152,7 +152,7 @@ class Packer:
     def _pack_bytes(self, obj: bytes | bytearray):
         byte_len = len(obj)
         if byte_len > 0xFFFFFFFF:
-            raise Exception("Bytes is too long to pack")
+            raise ValueError("Bytes is too long to pack")
         if byte_len <= 0xFF:
             self._pack_bin8(obj)
         elif byte_len <= 0xFFFF:
@@ -178,7 +178,7 @@ class Packer:
     def _pack_array(self, obj):
         list_len = len(obj)
         if list_len > 0xFFFFFFFF:
-            raise Exception("List is too long to pack")
+            raise ValueError("List is too long to pack")
         if list_len <= 0xF:
             self._pack_fix_array(obj)
         elif list_len <= 0xFFFF:
@@ -206,7 +206,7 @@ class Packer:
     def _pack_map(self, obj):
         map_len = len(obj)
         if map_len > 0xFFFFFFFF:
-            raise Exception("Map is too long to pack")
+            raise ValueError("Map is too long to pack")
         if map_len <= 0xF:
             self._pack_fix_map(obj)
         elif map_len <= 0xFFFF:

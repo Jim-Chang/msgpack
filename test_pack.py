@@ -167,7 +167,7 @@ def test_int64(test_input, expected):
 
 
 def test_int_sz_fail():
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pack(18446744073709551616)
         pack(-9223372036854775809)
 
@@ -261,7 +261,7 @@ def test_str32(test_input, expected):
 
 @pytest.mark.skip(reason="This test is too slow")
 def test_str_sz_fail():
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pack("t" * 4294967296)
 
 
@@ -310,7 +310,7 @@ def test_bin32(test_input, expected):
 
 @pytest.mark.skip(reason="This test is too slow")
 def test_bin_sz_fail():
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pack(b"t" * 4294967296)
 
 
@@ -359,7 +359,7 @@ def test_array32(test_input, expected):
 
 @pytest.mark.skip(reason="This test is too slow")
 def test_array_sz_fail():
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pack([1] * 4294967296)
 
 
@@ -432,7 +432,7 @@ def test_map32(test_input, expected):
 
 @pytest.mark.skip(reason="This test is too slow")
 def test_map_sz_fail():
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         pack({i: i for i in range(4294967297)})
 
 
