@@ -33,7 +33,7 @@ class Packer:
         elif isinstance(obj, (list, tuple)):
             self._pack_array(obj)
         elif isinstance(obj, dict):
-            self._pack_dict(obj)
+            self._pack_map(obj)
         else:
             raise TypeError("Cannot pack object of type %s" % type(obj))
 
@@ -201,8 +201,36 @@ class Packer:
         for item in obj:
             self._pack(item)
 
-    def _pack_dict(self, obj):
-        pass
+    def _pack_map(self, obj):
+        map_len = len(obj)
+        if map_len > 0xFFFFFFFF:
+            raise Exception("Map is too long to pack")
+        if map_len <= 0xF:
+            self._pack_fix_map(obj)
+        elif map_len <= 0xFFFF:
+            self._pack_map16(obj)
+        elif map_len <= 0xFFFFFFFF:
+            self._pack_map32(obj)
+
+    def _pack_fix_map(self, obj):
+        self._buffer.write((0x80 + len(obj)).to_bytes(1, byteorder="big"))
+        for key, value in obj.items():
+            self._pack(key)
+            self._pack(value)
+
+    def _pack_map16(self, obj):
+        self._buffer.write(b"\xde")
+        self._buffer.write(len(obj).to_bytes(2, byteorder="big"))
+        for key, value in obj.items():
+            self._pack(key)
+            self._pack(value)
+
+    def _pack_map32(self, obj):
+        self._buffer.write(b"\xdf")
+        self._buffer.write(len(obj).to_bytes(4, byteorder="big"))
+        for key, value in obj.items():
+            self._pack(key)
+            self._pack(value)
 
     def _pack_bool(self, obj: bool):
         if obj is True:

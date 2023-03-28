@@ -163,7 +163,7 @@ def test_double_float(test_input, expected):
     ],
 )
 def test_fix_str(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -177,7 +177,7 @@ def test_fix_str(test_input, expected):
     ],
 )
 def test_str8(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -191,7 +191,7 @@ def test_str8(test_input, expected):
     ],
 )
 def test_str16(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -206,7 +206,7 @@ def test_str16(test_input, expected):
 #     ],
 # )
 def test_str32(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -214,7 +214,7 @@ def test_str32(test_input, expected):
 @pytest.mark.skip(reason="This test is too slow")
 def test_str_sz_fail():
     with pytest.raises(Exception):
-        pack("t" * 4294967296, using_single_float=False)
+        pack("t" * 4294967296)
 
 
 @pytest.mark.parametrize(
@@ -226,7 +226,7 @@ def test_str_sz_fail():
     ],
 )
 def test_bin8(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -240,7 +240,7 @@ def test_bin8(test_input, expected):
     ],
 )
 def test_bin16(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -255,7 +255,7 @@ def test_bin16(test_input, expected):
 #     ],
 # )
 def test_bin32(test_input, expected):
-    ret = pack(test_input, using_single_float=False)
+    ret = pack(test_input)
 
     assert ret == expected
 
@@ -263,7 +263,7 @@ def test_bin32(test_input, expected):
 @pytest.mark.skip(reason="This test is too slow")
 def test_bin_sz_fail():
     with pytest.raises(Exception):
-        pack(b"t" * 4294967296, using_single_float=False)
+        pack(b"t" * 4294967296)
 
 
 @pytest.mark.parametrize(
@@ -334,6 +334,80 @@ def test_array_sz_fail():
     ],
 )
 def test_general_array(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ({1: 1}, msgpack.packb({1: 1})),
+        ({1: 1, 2: 2}, msgpack.packb({1: 1, 2: 2})),
+        ({i: i for i in range(16)}, msgpack.packb({i: i for i in range(16)})),
+    ],
+)
+def test_fix_map(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        ({i: i for i in range(17)}, msgpack.packb({i: i for i in range(17)})),
+        ({i: i for i in range(100)}, msgpack.packb({i: i for i in range(100)})),
+        ({i: i for i in range(65536)}, msgpack.packb({i: i for i in range(65536)})),
+    ],
+)
+def test_map16(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
+
+
+@pytest.mark.skip(reason="This test is too slow")
+# @pytest.mark.parametrize(
+#     "test_input,expected",
+#     [
+#         ({i: i for i in range(65537)}, msgpack.packb({i: i for i in range(65537)})),
+#         ({i: i for i in range(100000)}, msgpack.packb({i: i for i in range(100000)})),
+#         ({i: i for i in range(4294967296)}, msgpack.packb({i: i for i in range(4294967296)})),
+#     ],
+# )
+def test_map32(test_input, expected):
+    ret = pack(test_input, using_single_float=False)
+
+    assert ret == expected
+
+
+@pytest.mark.skip(reason="This test is too slow")
+def test_map_sz_fail():
+    with pytest.raises(Exception):
+        pack({i: i for i in range(4294967297)}, using_single_float=False)
+
+
+@pytest.mark.parametrize(
+    "test_input,expected",
+    [
+        (
+            {"a": "b", "a" * 100: "b" * 100},
+            msgpack.packb({"a": "b", "a" * 100: "b" * 100}, use_bin_type=True),
+        ),
+        (
+            {"a": 1, "a" * 100: 100, "b" * 100: 1.111111},
+            msgpack.packb(
+                {"a": 1, "a" * 100: 100, "b" * 100: 1.111111}, use_bin_type=True
+            ),
+        ),
+        (
+            {"a": {"x": 100}, "b": {"y": {"z": 100}}},
+            msgpack.packb({"a": {"x": 100}, "b": {"y": {"z": 100}}}, use_bin_type=True),
+        ),
+    ],
+)
+def test_general_map(test_input, expected):
     ret = pack(test_input, using_single_float=False)
 
     assert ret == expected
